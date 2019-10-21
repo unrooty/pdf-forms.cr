@@ -1,0 +1,9 @@
+name: pdf-forms
+version: 0.1.0
+
+authors:
+  - Vladislav Volkov <uladzislau.volkau@itibo.com>
+
+crystal: 0.31.1
+
+license: MIT
