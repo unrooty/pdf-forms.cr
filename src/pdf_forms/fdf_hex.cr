@@ -13,17 +13,17 @@ module PdfForms
   class FdfHex < Fdf
     private def field(key, value)
       "<</T(#{key})/V" +
-        (Array === value ? encode_many(value) : encode_value_as_hex(value)) +
+        (value.is_a?(Array) ? encode_many(value) : encode_value_as_hex(value)) +
         ">>\n"
     end
 
-    private def encode_many(values)
+    private def encode_many(values : Array(String))
       "[#{values.map { |v| encode_value_as_hex(v) }.join}]"
     end
 
     private def encode_value_as_hex(value)
       value = value.to_s
-      utf_16 = value.encode("UTF-16BE", invalid: :replace, undef: :replace)
+      utf_16 = String.new(value.encode("UTF-16BE", invalid: :skip))
       hex = utf_16.unpack("H*").first
       hex.force_encoding "ASCII-8BIT" # jruby
       "<FEFF" + hex.upcase + ">"

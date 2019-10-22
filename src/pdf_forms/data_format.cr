@@ -3,16 +3,16 @@
 module PdfForms
   class DataFormat
     setter data : Hash(String, String)
-    setter options : Hash(String, String | Nil)
+    setter options : Hash(String, String)
     setter file : String | Nil
     setter ufile : String | Nil
-    setter id : Array | Nil
+    setter id : Array(String)
 
-    def initialize(data : Hash(String, String) = {} of String => String, options : Hash(String, String) = {} of String => String)
+    def initialize(data : Hash(String, String) = {} of String => String, options : Hash(String, Hash(String, String) | String) = {} of String => String)
       @data = data
       @file = nil
       @ufile = nil
-      @id = nil
+      @id = [] of String
       @options = options
     end
 
@@ -21,16 +21,16 @@ module PdfForms
       pdf_data = header
 
       @data.each do |key, value|
-        if Hash === value
+        if value.is_a?(Hash(String, String))
           value.each do |sub_key, sub_value|
             pdf_data << field("#{key}_#{sub_key}", sub_value)
           end
         else
-          pdf_data << field(key, value)
+          pdf_data += field(key, value)
         end
       end
 
-      pdf_data << footer
+      pdf_data += footer
       return encode_data(pdf_data)
     end
 
@@ -45,6 +45,14 @@ module PdfForms
 
     private def encode_data(data)
       data
+    end
+
+    private def header
+      raise "Not Implemented"
+    end
+
+    private def field(key, value)
+      raise "Not Implemented"
     end
   end
 end

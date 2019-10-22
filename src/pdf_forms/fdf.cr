@@ -14,13 +14,12 @@ module PdfForms
       # I have yet to see a version of pdftk which can handle UTF8 input,
       # so we convert to ISO-8859-15 here, replacing unknown / invalid chars
       # with the default replacement which is "?".
-      if fdf.respond_to?(:encode!)
-        # Ruby >= 1.9
-        fdf.encode!("ISO-8859-15", invalid: :replace, undef: :replace)
-      else
-        # pre 1.9
-        Iconv.conv("ISO-8859-15//IGNORE", "utf-8", fdf)
-      end
+
+      encoded_string = String.new(fdf.encode("ISO-8859-15", invalid: :skip))
+
+      return encoded_string if encoded_string.valid_encoding?
+
+      encoded_string.chars
     end
 
     # pp 559 https://www.adobe.com/content/dam/acom/en/devnet/pdf/pdfs/pdf_reference_archives/PDFReference.pdf
@@ -28,11 +27,11 @@ module PdfForms
       header = "%FDF-1.2\n\n1 0 obj\n<<\n/FDF << /Fields 2 0 R"
 
       # /F
-      header += "/F (#{@options[:file]})" if @options[:file]
+      header += "/F (#{@file})" if @file
       # /UF
-      header += "/UF (#{@options[:ufile]})" if @options[:ufile]
+      header += "/UF (#{@ufile})" if @ufile
       # /ID
-      header += "/ID[" + @options[:id].try(&.join) + "]" if @options[:id]
+      header += "/ID[" + @id.compact.try(&.join) + "]" unless @id.empty?
 
       header += ">>\n>>\nendobj\n2 0 obj\n["
       header
@@ -41,9 +40,9 @@ module PdfForms
     # pp 561 https://www.adobe.com/content/dam/acom/en/devnet/pdf/pdfs/pdf_reference_archives/PDFReference.pdf
     private def field(key, value)
       field = "<<"
-      field << "/T" + "(#{key})"
-      field << "/V" + (Array === value ? "[#{value.map { |v| "(#{quote(v)})" }.join}]" : "(#{quote(value)})")
-      field << ">>\n"
+      field += "/T" + "(#{key})"
+      field += "/V" + (value.is_a?(Array) ? "[#{value.map { |v| "(#{quote(v)})" }.join}]" : "(#{quote(value)})")
+      field += ">>\n"
       field
     end
 

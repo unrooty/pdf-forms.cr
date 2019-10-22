@@ -1,9 +1,11 @@
 # coding: UTF-8
 
+require "xml"
+
 module PdfForms
   # Map keys and values to Adobe"s XFDF format.
   class XFdf < DataFormat
-    def initialize(data = {} of KeyType => ValueType, options = {} of KeyType => ValueType)
+    def initialize(data = {} of String => String, options = {} of String => String)
       super
     end
 
@@ -12,7 +14,7 @@ module PdfForms
     end
 
     private def quote(value)
-      REXML::Text.new(value.to_s).to_s
+      XML.parse(value.to_s).to_s
     end
 
     private def header

@@ -30,7 +30,7 @@ module PdfForms
       q_template = normalized_path(template)
       q_destination = normalized_path(destination)
       fdf = data_format(data)
-      tmp = Tempfile.new("pdf_forms-fdf")
+      tmp = File.tempfile("pdf_forms-fdf")
       tmp.close
       fdf.save_to tmp.path
       fill_options = {:tmp_path => tmp.path}.merge(fill_options)
@@ -118,7 +118,7 @@ module PdfForms
     end
 
     private def data_format(data)
-      case @options[:data_format]
+      case @options[:data_format]?
       when "xfdf"
         PdfForms::XFdf.new(data)
       else
