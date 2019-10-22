@@ -2,15 +2,18 @@
 
 module PdfForms
   class DataFormat
-    getter :options
+    setter data : Hash(String, String)
+    setter options : Hash(String, String | Nil)
+    setter file : String | Nil
+    setter ufile : String | Nil
+    setter id : Array | Nil
 
-    def initialize(data = {} of KeyType => ValueType, options = {} of KeyType => ValueType)
+    def initialize(data : Hash(String, String) = {} of String => String, options : Hash(String, String) = {} of String => String)
       @data = data
-      @options = {
-        :file  => nil,
-        :ufile => nil,
-        :id    => nil,
-      }.merge(options)
+      @file = nil
+      @ufile = nil
+      @id = nil
+      @options = options
     end
 
     # generate PDF content in this data format

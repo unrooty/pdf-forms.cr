@@ -8,11 +8,11 @@ module PdfForms
 
     setter path : String
     setter pdftk : String
-    setter options : Hash(Symbol, String)
+    setter options : Hash(String, String)
 
     getter fields : Array(Field) | Nil = nil
 
-    def initialize(path : String, pdftk : String = PDFTK_PATH, options = {} of Symbol => String)
+    def initialize(path : String, pdftk : String = PDFTK_PATH, options = {} of String => String)
       @options = options
       @path = normalized_path(path)
       raise "File not readable!" unless File.readable?(@path)

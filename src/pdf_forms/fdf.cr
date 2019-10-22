@@ -1,14 +1,12 @@
 # coding: UTF-8
 
 module PdfForms
-
   # Map keys and values to Adobe"s FDF format.
   #
   # Straight port of Perl"s PDF::FDF::Simple by Steffen Schwigon.
   # Parsing FDF files is not supported (yet).
   class Fdf < DataFormat
-
-    def initialize(data = {} of KeyType => ValueType, options = {} of KeyType => ValueType)
+    def initialize(data : Hash(String, String), options : Hash(String, String) = {} of String => String)
       super
     end
 
@@ -30,13 +28,13 @@ module PdfForms
       header = "%FDF-1.2\n\n1 0 obj\n<<\n/FDF << /Fields 2 0 R"
 
       # /F
-      header << "/F (#{options[:file]})" if options[:file]
+      header += "/F (#{@options[:file]})" if @options[:file]
       # /UF
-      header << "/UF (#{options[:ufile]})" if options[:ufile]
+      header += "/UF (#{@options[:ufile]})" if @options[:ufile]
       # /ID
-      header << "/ID[" << options[:id].join << "]" if options[:id]
+      header += "/ID[" + @options[:id].try(&.join) + "]" if @options[:id]
 
-      header << ">>\n>>\nendobj\n2 0 obj\n["
+      header += ">>\n>>\nendobj\n2 0 obj\n["
       header
     end
 
@@ -44,18 +42,18 @@ module PdfForms
     private def field(key, value)
       field = "<<"
       field << "/T" + "(#{key})"
-      field << "/V" + (Array === value ? "[#{value.map{ |v|"(#{quote(v)})" }.join}]" : "(#{quote(value)})")
+      field << "/V" + (Array === value ? "[#{value.map { |v| "(#{quote(v)})" }.join}]" : "(#{quote(value)})")
       field << ">>\n"
       field
     end
 
     private def quote(value)
-      value.to_s.
-        gsub( /(\\|\(|\))/ ) { "\\" + $1 }.
-        gsub( /\n/, "\r" )
+      value.to_s
+        .gsub(/(\\|\(|\))/) { "\\" + $1 }
+        .gsub(/\n/, "\r")
     end
 
-    FOOTER =<<-EOFOOTER
+    FOOTER = <<-EOFOOTER
 ]
 endobj
 trailer
@@ -69,6 +67,5 @@ EOFOOTER
     private def footer
       FOOTER
     end
-
   end
 end

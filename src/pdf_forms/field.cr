@@ -34,7 +34,7 @@ module PdfForms
       build_attributes
     end
 
-    private def build_attributes : Hash(String, String) | Hash(Symbol, String)
+    private def build_attributes : Hash(String, String)
       last_value = ""
 
       Hash(String, String).new.tap do |attributes|
@@ -59,7 +59,7 @@ module PdfForms
       end
     end
 
-    private def assing_variables(attributes : Hash(String, String) | Hash(Symbol, String))
+    private def assing_variables(attributes : Hash(String, String))
       attributes.each do |name, value|
         assign_variable(name, value)
       end

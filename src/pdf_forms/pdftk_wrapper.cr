@@ -9,7 +9,7 @@ module PdfForms
     include NormalizePath
 
     setter pdftk_path : String
-    setter options : Hash(Symbol, String)
+    setter options : Hash(String, String)
 
     # Initializes a new wrapper instance. Pdftk will be autodetected from PATH:
     # PdftkWrapper.new(:flatten => true, :encrypt => true, :encrypt_options => "allow Printing")
@@ -19,16 +19,14 @@ module PdfForms
     #
     # Besides the options shown above, the drop_xfa or drop_xmp options are
     # also supported.
-    def initialize(pdftk_path : String = PDFTK_PATH, options = {} of Symbol => String)
+    def initialize(pdftk_path : String = PDFTK_PATH, options = {} of String => String)
       @pdftk_path = pdftk_path
       @options = options
     end
 
     # pdftk.fill_form "/path/to/form.pdf", "/path/to/destination.pdf", :field1 => "value 1"
-    def fill_form(template : String, destination : String,
-                  data : Hash(String, String) | Hash(Symbol, String) = {} of String => String,
-                  fill_options : Hash(Symbol, String) = {} of Symbol => String)
-
+    def fill_form(template : String, destination : String, data : Hash(String, String) = {} of String => String,
+                  fill_options : Hash(String, String) = {} of String => String)
       q_template = normalized_path(template)
       q_destination = normalized_path(destination)
       fdf = data_format(data)
@@ -37,7 +35,7 @@ module PdfForms
       fdf.save_to tmp.path
       fill_options = {:tmp_path => tmp.path}.merge(fill_options)
 
-      args = [q_template, "fill_form", normalize_path(tmp.path), "output", q_destination]
+      args = [q_template, "fill_form", normalized_path(tmp.path), "output", q_destination]
       result = call_pdftk(*(append_options(args, fill_options)))
 
       unless File.readable?(destination) && File.size(destination) > 0
@@ -120,8 +118,12 @@ module PdfForms
     end
 
     private def data_format(data)
-      data_format = options[:data_format] || "Fdf"
-      PdfForms.const_get(data_format).new(data)
+      case @options[:data_format]
+      when "xfdf"
+        PdfForms::XFdf.new(data)
+      else
+        PdfForms::Fdf.new(data)
+      end
     end
 
     private def option_or_global(attrib, local = {} of KeyType => ValueType)
