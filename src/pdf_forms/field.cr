@@ -11,35 +11,34 @@ module PdfForms
     #
     # Representation of a PDF Form Field
 
-    @name : String | Nil
-    @type : String | Nil
-    @options : Array(String) = [] of String
-    @flags : String | Nil
-    @justification : String | Nil
-    @value : String | Nil
-    @value_default : String | Nil
-    @name_alt : String | Nil
-    @max_length : String | Nil
-    @additional_attributes = {} of String => String
+    setter field_description : String
 
-    def initialize(field_description)
-      assing_variables(build_attributes(field_description))
+    getter name : String = ""
+    getter type : String  = ""
+    getter options : Array(String) = [] of String
+    getter flags : String = ""
+    getter justification : String  = ""
+    getter value : String  = ""
+    getter value_default : String  = ""
+    getter name_alt : String  = ""
+    getter max_length : String  = ""
+    getter additional_attributes : Hash(String, String)  = {} of String => String
+
+    def initialize(field_description : String)
+      @field_description = field_description
+
+      assing_variables(build_attributes)
     end
 
     def to_hash
-      hash = {} of String => String
-      ATTRS.each do |attribute|
-        hash[attribute] = self.send(attribute)
-      end
-
-      hash
+      build_attributes
     end
 
-    private def build_attributes(field_description) : Array(Hash(String, String))
+    private def build_attributes : Hash(String, String) | Hash(Symbol, String)
       last_value = ""
 
-      Array(Hash(String, String)).new.tap do |array_of_attributes|
-        field_description.each_line do |line|
+      Hash(String, String).new.tap do |attributes|
+        @field_description.each_line do |line|
           if line.chomp =~ /^Field([A-Za-z]+):\s+(.*)/
             _, key, value = $~
 
@@ -49,14 +48,8 @@ module PdfForms
               last_value = value.chomp
               key = key.split(/(?=[A-Z])/).map(&.downcase).join('_')
 
-              array_of_attributes << { key => value }
-              # dynamically add in fields that we didn't anticipate in ATTRS
-              # unless self.responds_to?(method_name)
-              #   proc = Proc.new { instance_variable_get("@#{key}".to_sym) }
-              #   self.class.send(:define_method, key.to_sym, proc)
-              # end
+              attributes[key] = value
             end
-
           else
             # pdftk returns a line that doesn't start with "Field"
             # It happens when a text field has multiple lines
@@ -66,11 +59,9 @@ module PdfForms
       end
     end
 
-    private def assing_variables(array_of_attributes : Array(Hash(String, String)))
-      array_of_attributes.each do |attribute|
-        attribute.each do |name, value|
-          assign_variable(name, value)
-        end
+    private def assing_variables(attributes : Hash(String, String) | Hash(Symbol, String))
+      attributes.each do |name, value|
+        assign_variable(name, value)
       end
     end
 
