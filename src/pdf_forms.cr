@@ -6,9 +6,10 @@ require "./pdf_forms/data_format"
 # require "./pdf_forms/fdf_hex"
 require "./pdf_forms/pdf"
 require "./pdf_forms/pdftk_wrapper"
+require "./pdf_forms/constants"
 
 module PdfForms
-  def self.new(pdftk_url : String = "/usr/bin/pdftk", options = {} of Symbol => String)
-    PdftkWrapper.new pdftk_url, options
+  def self.new(pdftk_path : String = PDFTK_PATH, options = {} of Symbol => String)
+    PdftkWrapper.new pdftk_path, options
   end
 end
