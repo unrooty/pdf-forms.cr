@@ -8,9 +8,8 @@ module PdfForms
   class PdftkWrapper
     include NormalizePath
 
-    getter :pdftk, :options
-
-    PDFTK = "pdftk"
+    setter pdftk_path : String
+    setter options : Hash(Symbol, String)
 
     # Initializes a new wrapper instance. Pdftk will be autodetected from PATH:
     # PdftkWrapper.new(:flatten => true, :encrypt => true, :encrypt_options => "allow Printing")
@@ -20,15 +19,18 @@ module PdfForms
     #
     # Besides the options shown above, the drop_xfa or drop_xmp options are
     # also supported.
-    def initialize(pdftk_url : String, options = {} of Symbol => String)
-      @pdftk = pdftk_url
+    def initialize(pdftk_path : String = PDFTK_PATH, options = {} of Symbol => String)
+      @pdftk_path = pdftk_path
       @options = options
     end
 
     # pdftk.fill_form "/path/to/form.pdf", "/path/to/destination.pdf", :field1 => "value 1"
-    def fill_form(template, destination, data = {} of Symbol => String, fill_options = {} of KeyType => ValueType)
-      q_template = normalize_path(template)
-      q_destination = normalize_path(destination)
+    def fill_form(template : String, destination : String,
+                  data : Hash(String, String) | Hash(Symbol, String) = {} of String => String,
+                  fill_options : Hash(Symbol, String) = {} of Symbol => String)
+
+      q_template = normalized_path(template)
+      q_destination = normalized_path(destination)
       fdf = data_format(data)
       tmp = Tempfile.new("pdf_forms-fdf")
       tmp.close
@@ -55,7 +57,7 @@ module PdfForms
     # pdftk.read "/path/to/form.pdf"
     # returns an instance of PdfForms::Pdf representing the given template
     def read(path)
-      Pdf.new path, self, options
+      Pdf.new path, @pdftk_path, @options
     end
 
     # Get field metadata for template
@@ -170,6 +172,10 @@ module PdfForms
         end
       end
       [pdftk, options]
+    end
+
+    private def file_exists?(path)
+      File.exists?(path)
     end
   end
 end
