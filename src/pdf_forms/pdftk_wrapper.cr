@@ -36,20 +36,21 @@ module PdfForms
       fill_options = {:tmp_path => tmp.path}.merge(fill_options)
 
       args = [q_template, "fill_form", normalized_path(tmp.path), "output", q_destination]
-      result = call_pdftk(*(append_options(args, fill_options)))
+
+      result = call_pdftk(append_options(args, fill_options))
 
       unless File.readable?(destination) && File.size(destination) > 0
         fdf_path = nil
         begin
-          fdf_path = File.join(File.dirname(tmp.path), "#{Time.now.strftime "%Y%m%d%H%M%S"}.fdf")
+          fdf_path = File.join(File.dirname(tmp.path), "#{Time.local.to_s "%Y%m%d%H%M%S"}.fdf")
           fdf.save_to fdf_path
         rescue e : Exception
           fdf_path = e.message
         end
-        raise PdftkError.new("failed to fill form with command\n#{pdftk} #{args.flatten.compact.join " "}\ncommand output was:\n#{result}\nfailing form data has been saved to #{fdf_path}")
+        raise PdftkError.new("failed to fill form with command\n#{@pdftk_path} #{args.flatten.compact.join " "}\ncommand output was:\n#{result}\nfailing form data has been saved to #{fdf_path}")
       end
     ensure
-      tmp.unlink if tmp
+      tmp.delete if tmp
     end
 
     # pdftk.read "/path/to/form.pdf"
@@ -76,8 +77,10 @@ module PdfForms
 
     # returns the commands output, check general execution success with
     # $?.success?
-    def call_pdftk(*args)
-      system pdftk, args
+    def call_pdftk(args)
+      Process.run(@pdftk_path, args, output: Process::Redirect::Pipe) do |process|
+        process.output.gets_to_end
+      end
     end
 
     # concatenate documents, can optionally specify page ranges
@@ -126,8 +129,8 @@ module PdfForms
       end
     end
 
-    private def option_or_global(attrib, local = {} of KeyType => ValueType)
-      local[attrib] || options[attrib]
+    private def option_or_global(attrib, local = {} of String => String)
+      local[attrib]? || @options[attrib]?
     end
 
     ALLOWED_OPTIONS = %i(
@@ -135,11 +138,13 @@ module PdfForms
       drop_xfa
       flatten
       need_appearances
-    ).freeze
+    )
 
-    private def append_options(args, local_options = {} of KeyType => ValueType)
-      return args if options.empty? && local_options.empty?
+    private def append_options(args, local_options = {} of String => String)
+      return args if @options.empty? && local_options.empty?
+
       args = args.dup
+
       ALLOWED_OPTIONS.each do |option|
         if option_or_global(option, local_options)
           args << option.to_s
@@ -147,14 +152,13 @@ module PdfForms
       end
       if option_or_global(:encrypt, local_options)
         encrypt_pass = option_or_global(:encrypt_password, local_options)
-        encrypt_pass ||= SecureRandom.urlsafe_base64
+        encrypt_pass ||= Random::Secure.urlsafe_base64
         encrypt_options = option_or_global(:encrypt_options, local_options)
-        encrypt_options = encrypt_options.split if String === encrypt_options
-        args << ["encrypt_128bit", "owner_pw", encrypt_pass, encrypt_options]
+        encrypt_options = encrypt_options.split if encrypt_options.is_a?(String)
+        args += ["encrypt_128bit", "owner_pw", encrypt_pass, encrypt_options]
       end
-      args.flatten!
-      args.compact!
-      args
+
+      args.flatten.compact
     end
 
     private def normalize_args(*args)

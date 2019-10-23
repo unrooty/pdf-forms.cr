@@ -24,8 +24,8 @@ module PdfForms
     private def encode_value_as_hex(value)
       value = value.to_s
       utf_16 = String.new(value.encode("UTF-16BE", invalid: :skip))
-      hex = utf_16.unpack("H*").first
-      hex.force_encoding "ASCII-8BIT" # jruby
+      hex = utf_16#.unpack("H*").first
+      # hex.force_encoding "ASCII-8BIT" # jruby
       "<FEFF" + hex.upcase + ">"
     end
 

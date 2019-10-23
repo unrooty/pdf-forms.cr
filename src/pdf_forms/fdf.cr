@@ -15,11 +15,11 @@ module PdfForms
       # so we convert to ISO-8859-15 here, replacing unknown / invalid chars
       # with the default replacement which is "?".
 
-      encoded_string = String.new(fdf.encode("ISO-8859-15", invalid: :skip))
+      encoded_string = String.new(fdf.encode("ISO-8859-15", invalid: :skip)).scrub
 
       return encoded_string if encoded_string.valid_encoding?
 
-      encoded_string.chars
+      encoded_string.scrub
     end
 
     # pp 559 https://www.adobe.com/content/dam/acom/en/devnet/pdf/pdfs/pdf_reference_archives/PDFReference.pdf

@@ -54,5 +54,9 @@ module PdfForms
     private def field(key, value)
       raise "Not Implemented"
     end
+
+    private def footer
+      raise "Not Implemented"
+    end
   end
 end
