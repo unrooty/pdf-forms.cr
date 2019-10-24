@@ -2,7 +2,11 @@ name: pdf-forms
 version: 0.1.0
 
 authors:
-  - Vladislav Volkov <uladzislau.volkau@itibo.com>
+  - Vladislav Volkov <volcharneverfall1996@gmail.com>
+ 
+dependencies:
+  minitest:
+    github: ysbaddaden/minitest.cr
 
 crystal: 0.31.1
 
