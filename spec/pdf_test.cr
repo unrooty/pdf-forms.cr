@@ -14,11 +14,13 @@ class PdfTest < Minitest::Test
   end
 
   def test_fields_utf8
-    pdf = PdfForms::Pdf.new "./spec/fixtures/utf8.pdf", PdfForms::PDFTK_PATH, {"utf8_fields" => true} of String => String | Bool
-    p pdf.fields
-    # fields = pdf.fields
-    # assert fields.any?
-    # assert fields.find { |f| f.name == "•?((¯°·._.• µţƒ-8 ƒɨ€ℓď •._.·°¯))؟•" }
+    pdf = PdfForms::Pdf.new "./spec/fixtures/utf8.pdf",
+                            PdfForms::PDFTK_PATH,
+                            {"utf8_fields" => true} of String => String | Bool
+
+    assert fields = pdf.fields
+    assert fields.any?
+    assert fields.find { |f| f.name == "•?((¯°·._.• µţƒ-8 ƒɨ€ℓď •._.·°¯))؟•" }
   end
 
   def test_should_have_field_metadata
@@ -29,7 +31,7 @@ class PdfTest < Minitest::Test
   end
 
   def test_should_error_when_file_not_readable
-    assert_raises(IO::Error) {
+    assert_raises(Exception) {
       PdfForms::Pdf.new "foo/bar.pdf", PdfForms::PDFTK_PATH
     }
   end

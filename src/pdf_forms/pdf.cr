@@ -10,7 +10,7 @@ module PdfForms
     setter pdftk : String
     setter options : Hash(String, String | Bool)
 
-    getter fields : Array(Field)
+    getter fields : Array(Field) | Nil = nil
 
     def initialize(path : String, pdftk : String = PDFTK_PATH, options = {} of String => String | Bool)
       @options = options
@@ -24,7 +24,6 @@ module PdfForms
     # Initialize the object with utf8_fields: true to get utf8 encoded field
     # names.
     def fields
-      p read_fields
       @fields ||= read_fields
     end
 
@@ -45,6 +44,8 @@ module PdfForms
       Process.run(@pdftk, [@path, dump_method], output: Process::Redirect::Pipe) do |process|
         process.output.gets_to_end
       end
+    rescue exception
+      raise "PDF fields dump failed due to #{exception.message}"
     end
   end
 end
