@@ -22,10 +22,12 @@ module PdfForms
     end
 
     private def encode_value_as_hex(value)
-      value = value.to_s
-      utf_16 = String.new(value.encode("UTF-16BE", invalid: :skip))
-      hex = utf_16#.unpack("H*").first
-      # hex.force_encoding "ASCII-8BIT" # jruby
+      byte_array = value.to_s.bytes.reject { |byte| byte == 0 }
+
+      hex_array = byte_array.map { |byte| byte.to_s(16) }
+
+      hex = hex_array.map { |hex| "0" * (4 - hex.size) + hex }.join
+
       "<FEFF" + hex.upcase + ">"
     end
 
