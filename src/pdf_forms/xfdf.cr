@@ -14,7 +14,16 @@ module PdfForms
     end
 
     private def quote(value)
-      XML.parse(value.to_s).to_s
+      case
+      when value.is_a?(String)
+        value
+      when value.is_a?(Array)
+        value.map { |v| quote(v) }.join(" ")
+      when value.nil?
+        value.to_s
+      else
+        raise "Invalid value passed! Must be an Array(String) | String | Nil."
+      end
     end
 
     private def header
@@ -25,7 +34,7 @@ module PdfForms
     end
 
     private def field(key, value)
-      "<field name=\"#{key}\"><value>#{Array{value}.map{ |v| quote(v) }.join(" ")}</value></field>"
+      "<field name=\"#{key}\"><value>#{quote(value)}</value></field>"
     end
 
     private def footer

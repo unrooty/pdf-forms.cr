@@ -26,31 +26,32 @@ module PdfForms
 
     # pdftk.fill_form "/path/to/form.pdf", "/path/to/destination.pdf", :field1 => "value 1"
     def fill_form(template : String, destination : String, data : Hash(String, String) = {} of String => String,
-                  fill_options : Hash(String, String) = {} of String => String)
+                  fill_options : Hash(String, String | Bool) = {} of String => String | Bool)
       q_template = expanded_path(template)
       q_destination = expanded_path(destination)
       fdf = data_format(data)
       tmp = File.tempfile("pdf_forms-fdf")
       tmp.close
       fdf.save_to tmp.path
-      fill_options = {:tmp_path => tmp.path}.merge(fill_options)
+      fill_options = {"tmp_path" => tmp.path}.merge(fill_options)
 
       args = [q_template, "fill_form", expanded_path(tmp.path), "output", q_destination]
 
-      result = call_pdftk(append_options(args, fill_options))
+      p args
+      # result = call_pdftk(append_options(args, fill_options))
 
-      unless File.readable?(destination) && File.size(destination) > 0
-        fdf_path = nil
-        begin
-          fdf_path = File.join(File.dirname(tmp.path), "#{Time.local.to_s "%Y%m%d%H%M%S"}.fdf")
-          fdf.save_to fdf_path
-        rescue e : Exception
-          fdf_path = e.message
-        end
-        raise PdftkError.new("failed to fill form with command\n#{@pdftk_path} #{args.flatten.compact.join " "}\ncommand output was:\n#{result}\nfailing form data has been saved to #{fdf_path}")
-      end
-    ensure
-      tmp.delete if tmp
+    #   unless File.readable?(destination) && File.size(destination) > 0
+    #     fdf_path = nil
+    #     begin
+    #       fdf_path = File.join(File.dirname(tmp.path), "#{Time.local.to_s "%Y%m%d%H%M%S"}.fdf")
+    #       fdf.save_to fdf_path
+    #     rescue e : Exception
+    #       fdf_path = e.message
+    #     end
+    #     raise PdftkError.new("failed to fill form with command\n#{@pdftk_path} #{args.flatten.compact.join " "}\ncommand output was:\n#{result}\nfailing form data has been saved to #{fdf_path}")
+    #   end
+    # ensure
+    #   tmp.delete if tmp
     end
 
     # pdftk.read "/path/to/form.pdf"
@@ -77,7 +78,7 @@ module PdfForms
 
     # returns the commands output, check general execution success with
     # $?.success?
-    def call_pdftk(args)
+    def call_pdftk(args : Array(String))
       Process.run(@pdftk_path, args, output: Process::Redirect::Pipe) do |process|
         process.output.gets_to_end
       end
@@ -87,12 +88,15 @@ module PdfForms
     #
     # args: in_file1, {in_file2 => ["1-2", "4-10"]}, ... , in_file_n, output
     def cat(*args)
-      in_files = [] of ElementType
-      page_ranges = [] of Integer
+      in_files = [] of String | Hash(String, Array(String))
+      page_ranges = [] of String
       file_handle = "A"
-      output = normalize_path args.pop
 
-      args.flatten.compact.each do |in_file|
+      args_size = args.to_a.size
+
+      output = expanded_path(args[args_size - 1])
+
+      args.to_a.flatten.compact.each do |in_file|
         if in_file.is_a? Hash
           path = in_file.keys.first
           page_ranges.push *in_file.values.first.map { |range| "#{file_handle}#{range}" }
@@ -100,7 +104,7 @@ module PdfForms
           path = in_file
           page_ranges.push "#{file_handle}"
         end
-        in_files.push "#{file_handle}=#{normalize_path(path)}"
+        in_files.push "#{file_handle}=#{expanded_path(path)}"
         file_handle.next!
       end
 
@@ -121,7 +125,7 @@ module PdfForms
     end
 
     private def data_format(data)
-      case @options[:data_format]?
+      case @options["data_format"]?
       when "xfdf"
         PdfForms::XFdf.new(data)
       else
@@ -129,18 +133,13 @@ module PdfForms
       end
     end
 
-    private def option_or_global(attrib, local = {} of String => String)
+    private def option_or_global(attrib : String, local = {} of String => String)
       local[attrib]? || @options[attrib]?
     end
 
-    ALLOWED_OPTIONS = %i(
-      drop_xmp
-      drop_xfa
-      flatten
-      need_appearances
-    )
+    ALLOWED_OPTIONS = ["drop_xmp", "drop_xfa", "flatten", "need_appearances"]
 
-    private def append_options(args, local_options = {} of String => String)
+    private def append_options(args : Array(String), local_options = {} of String => String)
       return args if @options.empty? && local_options.empty?
 
       args = args.dup
@@ -150,10 +149,10 @@ module PdfForms
           args << option.to_s
         end
       end
-      if option_or_global(:encrypt, local_options)
-        encrypt_pass = option_or_global(:encrypt_password, local_options)
+      if option_or_global("encrypt", local_options)
+        encrypt_pass = option_or_global("encrypt_password", local_options)
         encrypt_pass ||= Random::Secure.urlsafe_base64
-        encrypt_options = option_or_global(:encrypt_options, local_options)
+        encrypt_options = option_or_global("encrypt_options", local_options)
         encrypt_options = encrypt_options.split if encrypt_options.is_a?(String)
         args += ["encrypt_128bit", "owner_pw", encrypt_pass, encrypt_options]
       end
@@ -163,13 +162,12 @@ module PdfForms
 
     private def normalize_args(*args)
       arguments : Tuple(String) = args.dup
-      pdftk = PDFTK
-      options = {} of Symbol => String
+      options = {} of String => String
       if first_arg = arguments[0]
         case first_arg
         when String
           pdftk = first_arg
-          options = args.shift || {} of Symbol => String
+          options = args.shift || {} of String => String
           raise ArgumentError.new("expected hash, got #{options.class.name}") unless Hash === options
         when Hash
           options = first_arg
@@ -177,7 +175,7 @@ module PdfForms
           raise ArgumentError.new("expected string or hash, got #{first_arg.class.name}")
         end
       end
-      [pdftk, options]
+      [@pdftk_path, options]
     end
 
     private def file_exists?(path)

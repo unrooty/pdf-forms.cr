@@ -10,6 +10,10 @@ require "./pdf_forms/constants"
 
 module PdfForms
   def self.new(pdftk_path : String = PDFTK_PATH, options = {} of String => String | Bool)
-    PdftkWrapper.new pdftk_path, options
+    PdftkWrapper.new(pdftk_path, options)
+  end
+
+  def self.new(options = {} of String => String | Bool)
+    PdftkWrapper.new(PDFTK_PATH, options)
   end
 end

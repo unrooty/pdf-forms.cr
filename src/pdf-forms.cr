@@ -31,4 +31,16 @@ require "benchmark"
 #   end
 # end
 
-p PdfForms.new.get_fields("/home/volkov/projects/shards/pdf-forms/spec/fixtures/form.pdf")
+# p PdfForms.new.fill_form(
+#   "/home/volkov/projects/shards/pdf-forms/spec/fixtures/form.pdf", ""
+#   )
+
+x = "B".ord
+
+p x
+
+if x.is_a?(UInt8)
+  p String.new(Slice[x])
+end
+
+
