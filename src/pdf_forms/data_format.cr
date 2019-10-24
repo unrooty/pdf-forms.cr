@@ -2,13 +2,13 @@
 
 module PdfForms
   class DataFormat
-    setter data : Hash(String, String)
+    setter data : Hash(String, String) | Hash(String, Array(String)) | Hash(String, Nil)
     setter options : Hash(String, String)
     setter file : String | Nil
     setter ufile : String | Nil
     setter id : Array(String)
 
-    def initialize(data : Hash(String, String) = {} of String => String, options : Hash(String, Hash(String, String) | String) = {} of String => String)
+    def initialize(data = {} of String => String, options = {} of String => String)
       @data = data
       @file = nil
       @ufile = nil

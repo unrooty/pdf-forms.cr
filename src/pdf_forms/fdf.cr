@@ -6,7 +6,7 @@ module PdfForms
   # Straight port of Perl"s PDF::FDF::Simple by Steffen Schwigon.
   # Parsing FDF files is not supported (yet).
   class Fdf < DataFormat
-    def initialize(data : Hash(String, String), options : Hash(String, String) = {} of String => String)
+    def initialize(data, options = {} of String => String)
       super
     end
 
@@ -47,9 +47,7 @@ module PdfForms
     end
 
     private def quote(value)
-      value.to_s
-        .gsub(/(\\|\(|\))/) { "\\" + $1 }
-        .gsub(/\n/, "\r")
+      value.to_s.gsub(/\n/, "\r")
     end
 
     FOOTER = <<-EOFOOTER
