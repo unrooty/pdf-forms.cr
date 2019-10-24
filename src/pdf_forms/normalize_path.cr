@@ -5,11 +5,11 @@
 module PdfForms
   module NormalizePath
     def normalized_path(path) : String
-      normalize_path(path).to_s
+      Path[path].normalize.to_s
     end
 
-    def normalize_path(path) : Path
-      Path[path].normalize
+    def expanded_path(path) : String
+      Path[path].expand.to_s
     end
   end
 end

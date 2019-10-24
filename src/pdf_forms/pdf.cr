@@ -8,13 +8,13 @@ module PdfForms
 
     setter path : String
     setter pdftk : String
-    setter options : Hash(String, String)
+    setter options : Hash(String, String | Bool)
 
-    getter fields : Array(Field) | Nil = nil
+    getter fields : Array(Field)
 
-    def initialize(path : String, pdftk : String = PDFTK_PATH, options = {} of String => String)
+    def initialize(path : String, pdftk : String = PDFTK_PATH, options = {} of String => String | Bool)
       @options = options
-      @path = normalized_path(path)
+      @path = expanded_path(path)
       raise "File not readable!" unless File.readable?(@path)
       @pdftk = pdftk
     end
@@ -24,6 +24,7 @@ module PdfForms
     # Initialize the object with utf8_fields: true to get utf8 encoded field
     # names.
     def fields
+      p read_fields
       @fields ||= read_fields
     end
 
@@ -33,7 +34,7 @@ module PdfForms
     end
 
     private def read_fields
-      dump_method = @options[:utf8_fields]? ? "dump_data_fields_utf8" : "dump_data_fields"
+      dump_method = @options["utf8_fields"]? ? "dump_data_fields_utf8" : "dump_data_fields"
 
       @fields = fields_output(dump_method).split("---\n").map do |field_text|
         Field.new field_text if field_text =~ /FieldName:/
@@ -41,7 +42,7 @@ module PdfForms
     end
 
     private def fields_output(dump_method)
-      Process.run(@pdftk,[@path, dump_method], output: Process::Redirect::Pipe) do |process|
+      Process.run(@pdftk, [@path, dump_method], output: Process::Redirect::Pipe) do |process|
         process.output.gets_to_end
       end
     end

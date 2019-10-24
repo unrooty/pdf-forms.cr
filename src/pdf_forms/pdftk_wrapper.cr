@@ -9,7 +9,7 @@ module PdfForms
     include NormalizePath
 
     setter pdftk_path : String
-    setter options : Hash(String, String)
+    setter options : Hash(String, String | Bool)
 
     # Initializes a new wrapper instance. Pdftk will be autodetected from PATH:
     # PdftkWrapper.new(:flatten => true, :encrypt => true, :encrypt_options => "allow Printing")
@@ -19,7 +19,7 @@ module PdfForms
     #
     # Besides the options shown above, the drop_xfa or drop_xmp options are
     # also supported.
-    def initialize(pdftk_path : String = PDFTK_PATH, options = {} of String => String)
+    def initialize(pdftk_path : String = PDFTK_PATH, options = {} of String => String | Bool)
       @pdftk_path = pdftk_path
       @options = options
     end
@@ -27,15 +27,15 @@ module PdfForms
     # pdftk.fill_form "/path/to/form.pdf", "/path/to/destination.pdf", :field1 => "value 1"
     def fill_form(template : String, destination : String, data : Hash(String, String) = {} of String => String,
                   fill_options : Hash(String, String) = {} of String => String)
-      q_template = normalized_path(template)
-      q_destination = normalized_path(destination)
+      q_template = expanded_path(template)
+      q_destination = expanded_path(destination)
       fdf = data_format(data)
       tmp = File.tempfile("pdf_forms-fdf")
       tmp.close
       fdf.save_to tmp.path
       fill_options = {:tmp_path => tmp.path}.merge(fill_options)
 
-      args = [q_template, "fill_form", normalized_path(tmp.path), "output", q_destination]
+      args = [q_template, "fill_form", expanded_path(tmp.path), "output", q_destination]
 
       result = call_pdftk(append_options(args, fill_options))
 
