@@ -37,21 +37,20 @@ module PdfForms
 
       args = [q_template, "fill_form", expanded_path(tmp.path), "output", q_destination]
 
-      p args
-      # result = call_pdftk(append_options(args, fill_options))
+      result = call_pdftk(append_options(args, fill_options))
 
-    #   unless File.readable?(destination) && File.size(destination) > 0
-    #     fdf_path = nil
-    #     begin
-    #       fdf_path = File.join(File.dirname(tmp.path), "#{Time.local.to_s "%Y%m%d%H%M%S"}.fdf")
-    #       fdf.save_to fdf_path
-    #     rescue e : Exception
-    #       fdf_path = e.message
-    #     end
-    #     raise PdftkError.new("failed to fill form with command\n#{@pdftk_path} #{args.flatten.compact.join " "}\ncommand output was:\n#{result}\nfailing form data has been saved to #{fdf_path}")
-    #   end
-    # ensure
-    #   tmp.delete if tmp
+      unless File.readable?(destination) && File.size(destination) > 0
+        fdf_path = nil
+        begin
+          fdf_path = File.join(File.dirname(tmp.path), "#{Time.local.to_s "%Y%m%d%H%M%S"}.fdf")
+          fdf.save_to fdf_path
+        rescue e : Exception
+          fdf_path = e.message
+        end
+        raise PdftkError.new("failed to fill form with command\n#{@pdftk_path} #{args.flatten.compact.join " "}\ncommand output was:\n#{result}\nfailing form data has been saved to #{fdf_path}")
+      end
+    ensure
+      tmp.delete if tmp
     end
 
     # pdftk.read "/path/to/form.pdf"
@@ -88,40 +87,43 @@ module PdfForms
     #
     # args: in_file1, {in_file2 => ["1-2", "4-10"]}, ... , in_file_n, output
     def cat(*args)
-      in_files = [] of String | Hash(String, Array(String))
+      args = args.to_a
+      in_files = [] of String
       page_ranges = [] of String
       file_handle = "A"
 
-      args_size = args.to_a.size
+      output_index = args.to_a.size - 1
 
-      output = expanded_path(args[args_size - 1])
+      output = expanded_path(args[output_index])
+
+      args.to_a.delete_at(output_index)
 
       args.to_a.flatten.compact.each do |in_file|
         if in_file.is_a? Hash
           path = in_file.keys.first
-          page_ranges.push *in_file.values.first.map { |range| "#{file_handle}#{range}" }
+          page_ranges += in_file.values.first.map { |range| "#{file_handle}#{range}" }
         else
           path = in_file
           page_ranges.push "#{file_handle}"
         end
         in_files.push "#{file_handle}=#{expanded_path(path)}"
-        file_handle.next!
+        file_handle = String.new(Slice[file_handle.bytes[0] + 1])
       end
 
-      call_pdftk in_files, "cat", page_ranges, "output", output
+      call_pdftk([in_files, "cat", page_ranges, "output", output].flatten)
     end
 
     # stamp one pdf with another
     #
     # args: primary_file, stamp_file, output
     def stamp(primary_file, stamp_file, output)
-      call_pdftk primary_file, "stamp", stamp_file, "output", output
+      call_pdftk([primary_file, "stamp", stamp_file, "output", output])
     end
 
     # applies each page of the stamp PDF to the corresponding page of the input PDF
     # args: primary_file, stamp_file, output
     def multistamp(primary_file, stamp_file, output)
-      call_pdftk primary_file, "multistamp", stamp_file, "output", output
+      call_pdftk([primary_file, "multistamp", stamp_file, "output", output])
     end
 
     private def data_format(data)
@@ -137,9 +139,9 @@ module PdfForms
       local[attrib]? || @options[attrib]?
     end
 
-    ALLOWED_OPTIONS = ["drop_xmp", "drop_xfa", "flatten", "need_appearances"]
+    ALLOWED_OPTIONS = %w[drop_xmp drop_xfa flatten need_appearances]
 
-    private def append_options(args : Array(String), local_options = {} of String => String)
+    private def append_options(args : Array(String), local_options = {} of String => String) : Array(String)
       return args if @options.empty? && local_options.empty?
 
       args = args.dup
@@ -154,10 +156,15 @@ module PdfForms
         encrypt_pass ||= Random::Secure.urlsafe_base64
         encrypt_options = option_or_global("encrypt_options", local_options)
         encrypt_options = encrypt_options.split if encrypt_options.is_a?(String)
-        args += ["encrypt_128bit", "owner_pw", encrypt_pass, encrypt_options]
+
+        if encrypt_options.is_a?(Array(String))
+          args += ["encrypt_128bit", "owner_pw", encrypt_pass.to_s] + encrypt_options
+        else
+          args += ["encrypt_128bit", "owner_pw", encrypt_pass.to_s, encrypt_options.to_s]
+        end
       end
 
-      args.flatten.compact
+      args.flatten.compact.reject(&.blank?)
     end
 
     private def normalize_args(*args)

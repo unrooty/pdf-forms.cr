@@ -16,9 +16,9 @@ module PdfForms
     private def quote(value)
       case
       when value.is_a?(String)
-        value
+        value.to_s
       when value.is_a?(Array)
-        value.map { |v| quote(v) }.join(" ")
+        value.map { |v| quote(v) }.join(" ").to_s
       when value.nil?
         value.to_s
       else

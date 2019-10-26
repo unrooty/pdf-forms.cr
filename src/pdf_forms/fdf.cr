@@ -50,16 +50,15 @@ module PdfForms
       value.to_s.gsub(/\n/, "\r")
     end
 
-    FOOTER = <<-EOFOOTER
-]
-endobj
-trailer
-<<
-/Root 1 0 R
-
->>
-%%EOF
-EOFOOTER
+    FOOTER =
+      "]\n" \
+      "endobj\n" \
+      "trailer\n" \
+      "<<\n" \
+      "/Root 1 0 R\n" \
+      "\n" \
+      ">>\n" \
+      "%%EOF\n"
 
     private def footer
       FOOTER

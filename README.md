@@ -4,6 +4,13 @@ TODO: Write a description here
 
 ## Installation
 
+Install PDFtk
+
+```bash
+  sudo add-apt-repository ppa:malteworld/ppa
+  sudo apt update
+```
+
 1. Add the dependency to your `shard.yml`:
 
    ```yaml
@@ -36,4 +43,4 @@ TODO: Write development instructions here
 
 ## Contributors
 
-- [Vladislav Volkov](https://github.com/your-github-user) - creator and maintainer
+- [Vladislav Volkov](https://github.com/unrooty) - creator and maintainer

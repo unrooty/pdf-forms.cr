@@ -27,7 +27,7 @@ class PdfTest < Minitest::Test
     pdf = PdfForms::Pdf.new "./spec/fixtures/form.pdf", PdfForms::PDFTK_PATH
     assert f = pdf.field("area5_answer4")
     assert_equal "Button", f.try(&.type)
-    assert_equal ["NOT YET", "Off", "SOMETIMES", "YES"], f.try(&.options)
+    assert_equal ["NOT YET", "Off", "SOMETIMES", "YES"].sort, f.try(&.options).try(&.sort)
   end
 
   def test_should_error_when_file_not_readable
