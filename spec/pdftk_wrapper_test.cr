@@ -1,8 +1,8 @@
 # coding: utf-8
 
 require "./test_helper"
-class PdftkWrapperTest < Minitest::Test
 
+class PdftkWrapperTest < Minitest::Test
   @pdftk : PdfForms::PdftkWrapper = PdfForms::PdftkWrapper.new
   @pdftk_utf8 : PdfForms::PdftkWrapper = PdfForms::PdftkWrapper.new
   @pdftk_options : PdfForms::PdftkWrapper = PdfForms::PdftkWrapper.new
@@ -10,26 +10,26 @@ class PdftkWrapperTest < Minitest::Test
 
   def setup
     @pdftk = PdfForms.new(PdfForms::PDFTK_PATH,
-      { "data_format" => data_format } of String => String | Bool
+      {"data_format" => data_format} of String => String | Bool
     )
 
     @pdftk_utf8 = PdfForms.new(PdfForms::PDFTK_PATH, {
       "utf8_fields" => true,
-      "data_format" => data_format
+      "data_format" => data_format,
     })
 
     @pdftk_options = PdfForms.new({
-      "flatten" => true,
-      "encrypt" => true,
-      "data_format" => data_format
+      "flatten"     => true,
+      "encrypt"     => true,
+      "data_format" => data_format,
     })
 
     @pdftk_with_encrypt_options = PdfForms.new(PdfForms::PDFTK_PATH, {
-      "flatten" => true,
-      "encrypt" => true,
-      "data_format" => data_format,
+      "flatten"          => true,
+      "encrypt"          => true,
+      "data_format"      => data_format,
       "encrypt_password" => "secret",
-      "encrypt_options" => "allow printing"
+      "encrypt_options"  => "allow printing",
     })
   end
 
@@ -38,33 +38,33 @@ class PdftkWrapperTest < Minitest::Test
   # end
 
   def test_get_fields_utf8
-    assert fields = @pdftk_utf8.get_fields( "./spec/fixtures/utf8.pdf" )
+    assert fields = @pdftk_utf8.get_fields("./spec/fixtures/utf8.pdf")
     assert fields.any?
-    assert fields.find{|f| f.name == "•?((¯°·._.• µţƒ-8 ƒɨ€ℓď •._.·°¯))؟•"}
+    assert fields.find { |f| f.name == "•?((¯°·._.• µţƒ-8 ƒɨ€ℓď •._.·°¯))؟•" }
   end
 
   def test_get_field_names_utf8
-    assert fields = @pdftk_utf8.get_field_names( "./spec/fixtures/utf8.pdf" )
+    assert fields = @pdftk_utf8.get_field_names("./spec/fixtures/utf8.pdf")
     assert fields.any?
     assert fields.includes?("•?((¯°·._.• µţƒ-8 ƒɨ€ℓď •._.·°¯))؟•")
   end
 
   def test_get_fields
-    assert fields = @pdftk.get_fields( "./spec/fixtures/form.pdf" )
+    assert fields = @pdftk.get_fields("./spec/fixtures/form.pdf")
     assert fields.any?
-    assert fields.find{|f| f.name == "program_name"}
+    assert fields.find { |f| f.name == "program_name" }
   end
 
   def test_get_field_names
-    assert fields = @pdftk.get_field_names( "./spec/fixtures/form.pdf" )
+    assert fields = @pdftk.get_field_names("./spec/fixtures/form.pdf")
     assert fields.any?
     assert fields.includes?("program_name")
   end
 
   def test_fill_form
     @pdftk.fill_form("./spec/fixtures/form.pdf",
-                     "./output.pdf",
-                     { "program_name" => "SOME TEXT" })
+      "./output.pdf",
+      {"program_name" => "SOME TEXT"})
 
     assert File.size("./output.pdf") > 0
     File.delete("./output.pdf")
@@ -72,8 +72,8 @@ class PdftkWrapperTest < Minitest::Test
 
   def test_fill_form_spaced_filename
     @pdftk.fill_form("./spec/fixtures/form.pdf",
-                     "out put.pdf",
-                     { "program_name" => "SOME TEXT" })
+      "out put.pdf",
+      {"program_name" => "SOME TEXT"})
 
     assert File.size("out put.pdf") > 0
     File.delete("./out put.pdf")
@@ -81,9 +81,9 @@ class PdftkWrapperTest < Minitest::Test
 
   def test_fill_form_and_flatten
     @pdftk.fill_form("./spec/fixtures/form.pdf",
-                     "./output.pdf",
-                     {"program_name" => "SOME TEXT"},
-                     {"flatten" => true})
+      "./output.pdf",
+      {"program_name" => "SOME TEXT"},
+      {"flatten" => true})
 
     assert File.size("./output.pdf") > 0
     fields = @pdftk.get_fields("./output.pdf")
@@ -93,8 +93,8 @@ class PdftkWrapperTest < Minitest::Test
 
   def test_fill_form_encrypted_and_flattened
     @pdftk_options.fill_form("./spec/fixtures/form.pdf",
-                             "./output.pdf",
-                             {"program_name" => "SOME TEXT"})
+      "./output.pdf",
+      {"program_name" => "SOME TEXT"})
 
     assert File.size("./output.pdf") > 0
     assert @pdftk.get_fields("./output.pdf").size == 0
@@ -103,14 +103,14 @@ class PdftkWrapperTest < Minitest::Test
 
   def test_fill_form_and_encrypt_for_opening
     pdftk = PdfForms.new(PdfForms::PDFTK_PATH, {
-      "encrypt" => true,
+      "encrypt"          => true,
       "encrypt_password" => "secret",
-      "encrypt_options" => "allow printing user_pw baz"
+      "encrypt_options"  => "allow printing user_pw baz",
     })
 
     pdftk.fill_form("./spec/fixtures/form.pdf",
-                    "./output.pdf",
-                    { "program_name" => "SOME TEXT" })
+      "./output.pdf",
+      {"program_name" => "SOME TEXT"})
 
     assert File.size("./output.pdf") > 0
     output = `pdftk output.pdf dump_data_fields 2>&1`
@@ -120,8 +120,8 @@ class PdftkWrapperTest < Minitest::Test
 
   def test_fill_form_with_non_ascii_iso_8859_chars
     @pdftk_options.fill_form("./spec/fixtures/form.pdf",
-                             "output_umlauts.pdf",
-                             { "program_name" => "with ß and ümlaut" })
+      "output_umlauts.pdf",
+      {"program_name" => "with ß and ümlaut"})
 
     assert File.size("output_umlauts.pdf") > 0
     File.delete("./output_umlauts.pdf")
@@ -143,9 +143,9 @@ class PdftkWrapperTest < Minitest::Test
 
   def test_cat_documents_page_ranges
     @pdftk.cat({"./spec/fixtures/form.pdf" => ["1-2", "4-5"]},
-               "./spec/fixtures/one.pdf",
-               {"./spec/fixtures/two.pdf" => ["1"]},
-               "./output.pdf")
+      "./spec/fixtures/one.pdf",
+      {"./spec/fixtures/two.pdf" => ["1"]},
+      "./output.pdf")
 
     assert File.size("./output.pdf") > 0
     File.delete("./output.pdf")

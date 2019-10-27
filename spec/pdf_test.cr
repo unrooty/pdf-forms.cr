@@ -15,8 +15,8 @@ class PdfTest < Minitest::Test
 
   def test_fields_utf8
     pdf = PdfForms::Pdf.new "./spec/fixtures/utf8.pdf",
-                            PdfForms::PDFTK_PATH,
-                            {"utf8_fields" => true} of String => String | Bool
+      PdfForms::PDFTK_PATH,
+      {"utf8_fields" => true} of String => String | Bool
 
     assert fields = pdf.fields
     assert fields.any?

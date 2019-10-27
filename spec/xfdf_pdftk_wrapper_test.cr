@@ -12,18 +12,18 @@ class XfdfPdftkWrapperTest < PdftkWrapperTest
     @pdftk.fill_form(
       "./spec/fixtures/japanese.pdf",
       "./output.pdf",
-      { "nationality" => japanese_string }
+      {"nationality" => japanese_string}
     )
 
     assert File.size("./output.pdf") > 0
 
-    assert field = @pdftk.get_fields("./output.pdf").find{|f| f.name == "nationality"}
+    assert field = @pdftk.get_fields("./output.pdf").find { |f| f.name == "nationality" }
     assert value = field.try(&.value) || ""
     refute value.nil?
     assert_equal "????".size, value.size
     assert_equal "????", value
 
-    assert field = @pdftk_utf8.get_fields("./output.pdf").find{|f| f.name == "nationality"}
+    assert field = @pdftk_utf8.get_fields("./output.pdf").find { |f| f.name == "nationality" }
     assert value = field.try(&.value)
     refute value.nil?
     assert_equal japanese_string, value

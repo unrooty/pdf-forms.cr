@@ -5,8 +5,8 @@ require "./test_helper"
 class XfdfTest < Minitest::Test
   def test_fdf_generation
     fdf = PdfForms::XFdf.new({
-      "field1" => "fieldvalue1",
-      "other_field" => "some other value"
+      "field1"      => "fieldvalue1",
+      "other_field" => "some other value",
     })
 
     assert fdf_text = fdf.to_fdf
