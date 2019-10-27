@@ -1,6 +1,14 @@
+dist: bionic
 language: crystal
-# Uncomment the following if you'd like Travis to run specs and check code formatting
+
+before_install:
+  # - sudo add-apt-repository -y ppa:malteworld/ppa
+  - sudo apt-get -q update
+  - sudo apt -y install pdftk
+
 script:
+  - lsb_release -a
+  - pdftk --version
   - crystal run spec/*_test.cr # run minitest.cr tests
   - crystal tool format --check
   - crystal docs
