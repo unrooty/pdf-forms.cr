@@ -13,9 +13,9 @@ module PdfForms
     getter fields : Array(Field) | Nil = nil
 
     def initialize(path : String, pdftk : String = PDFTK_PATH, options = {} of String => String | Bool)
-      @options = options
       @path = expanded_path(path)
       raise "File not readable!" unless File.readable?(@path)
+      @options = options
       @pdftk = pdftk
     end
 
