@@ -23,7 +23,7 @@ module PdfForms
       @data.each do |key, value|
         if value.is_a?(Hash(String, String))
           value.each do |sub_key, sub_value|
-            pdf_data << field("#{key}_#{sub_key}", sub_value)
+            pdf_data += field("#{key}_#{sub_key}", sub_value)
           end
         else
           pdf_data += field(key, value)
