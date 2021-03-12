@@ -13,7 +13,7 @@ class FdfTest < Minitest::Test
   def test_quoting
     fdf = PdfForms::Fdf.new({"field1" => " field(va)lue1"})
     assert fdf_text = fdf.to_fdf
-    assert_match "<</T(field1)/V( field\(va\)lue1)>>", fdf_text
+    assert_match "<</T(field1)/V( field(va)lue1)>>", fdf_text
   end
 
   def test_multival

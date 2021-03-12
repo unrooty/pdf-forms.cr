@@ -1,0 +1,62 @@
+name: Test
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    name: Test Shard
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-20.04, crystal: 0.36.1}
+          - {os: ubuntu-18.04, crystal: 0.36.1}
+          - {os: ubuntu-20.04, crystal: 0.36.0}
+          - {os: ubuntu-18.04, crystal: 0.36.0}
+          - {os: ubuntu-20.04, crystal: 0.35.1}
+          - {os: ubuntu-18.04, crystal: 0.35.1}
+          - {os: ubuntu-20.04, crystal: 0.35.0}
+          - {os: ubuntu-18.04, crystal: 0.35.0}
+          - {os: ubuntu-20.04, crystal: 0.34.0}
+          - {os: ubuntu-18.04, crystal: 0.34.0}
+          - {os: ubuntu-20.04, crystal: 0.33.0}
+          - {os: ubuntu-18.04, crystal: 0.33.0}
+          - {os: ubuntu-20.04, crystal: 0.32.1}
+          - {os: ubuntu-18.04, crystal: 0.32.1}
+          - {os: ubuntu-20.04, crystal: 0.32.0}
+          - {os: ubuntu-18.04, crystal: 0.32.0}
+          - {os: ubuntu-20.04, crystal: 0.31.1}
+          - {os: ubuntu-18.04, crystal: 0.31.1}
+          - {os: macOS-latest, crystal: 0.36.1}
+    runs-on: ${{matrix.os}}
+    steps:
+      - name: 'Prepare Ubuntu 20.04 ENV'
+        if: matrix.os == 'ubuntu-20.04'
+        run: |
+          sudo apt install pdftk
+      
+      - name: 'Prepare Ubuntu 18.04 ENV'
+        if: matrix.os == 'ubuntu-18.04'
+        run: |
+          wget http://launchpadlibrarian.net/475142792/pdftk-java_3.0.9-1_all.deb
+          sudo apt install default-jre-headless libcommons-lang3-java libbcprov-java
+          sudo dpkg -i pdftk-java_3.0.9-1_all.deb
+      - name: 'Prepare MacOS ENV'
+        if: matrix.os == 'macOS-latest'
+        run: |
+          brew install pdftk-java
+
+      - uses: oprypin/install-crystal@v1
+        with:
+          crystal: ${{matrix.crystal}}
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Test
+        run: |
+          shards install
+          crystal run ./spec/*_test.cr
+          crystal tool format && git diff --exit-code
