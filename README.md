@@ -1,4 +1,4 @@
-![Build Status](https://github.com/unrooty/pdf-forms.cr/actions/workflows/test.yml/badge.svg?branch=master)
+![Build Status](https://github.com/unrooty/pdf-forms.cr/actions/workflows/test.yml/badge.svg?branch=master&event=push)
 
 # pdf-forms.cr
 
