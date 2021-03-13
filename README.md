@@ -2,34 +2,49 @@
 
 Fill out PDF forms with [pdftk](https://gitlab.com/pdftk-java/pdftk).
 
-This shard is a port of [pdf-forms](https://github.com/jkraemer/pdf-forms) Ruby gem.
+This shard is a port of the [pdf-forms](https://github.com/jkraemer/pdf-forms) Ruby gem.
 
 ## Important Information
 
-This shard has been tested and works great with PDFtk 3.0 and Ubuntu 18.04. 
-The installation of PDFtk 3.0 is recommended for normal work.
+This shard has been tested and works great with PDFtk 3.0, Ubuntu 18.04, Ubuntu 20.04 and Crystal 0.31.1 - 0.36.1.
 
-Also shard can work fine with PDFtk 2.0 if PDFtk has access to the **/tmp** diretcory. 
+Also it tested against MacOS latest and Crystal 0.36.1
+
+The installation of the PDFtk 3.0 is recommended for normal work.
+
+Shard can work with PDFtk 2.0 if PDFtk has access to the **/tmp** diretcory. 
 
 ## Installation
 
-1. Install PDFtk 3.0 (Ubuntu 18.04 only)
+-  Install PDFtk (Ubuntu 18.04 only)
 
 ```bash
-  sudo add-apt-repository ppa:malteworld/ppa
-  sudo apt update
+  wget http://launchpadlibrarian.net/475142792/pdftk-java_3.0.9-1_all.deb
+  sudo apt install default-jre-headless libcommons-lang3-java libbcprov-java
+  sudo dpkg -i pdftk-java_3.0.9-1_all.deb
+```
+
+- Install PDFtk (Ubuntu 20.04 only)
+
+```bash
   sudo apt install pdftk
 ```
 
-2. Add the dependency to your `shard.yml`:
+- Install PDFtk (MacOS latest only)
+```bash
+  brew install pdftk-java
+```
+
+- Add the dependency to your `shard.yml`:
 
    ```yaml
    dependencies:
      pdf-forms.cr:
        github: unrooty/pdf-forms.cr
+       version: 0.2.0 # optional
    ```
 
-3. Run 
+-  Run 
   ```bash 
     shards install
   ```
@@ -90,8 +105,14 @@ options.
 
 First, check if the field value has been stored properly in the output PDF using `pdftk output.pdf dump_data_fields_utf8`.
 
-If it has been stored but is not rendered, your input PDF lacks the proper font for your kind of characters. Re-create it and embed any necessary fonts.
-If the value has not been stored, there is a problem with filling out the form, either on your side, of with this shard.
+If it has been stored but did not render, your input PDF lacks the proper font for your kind of characters. Re-create it and embed any necessary fonts.
+If value has not been stored, most of the time there is a problem with filling out the form on your side, not with this shard.
+
+## Testing
+
+Currencly shard uses [minitest.cr](https://github.com/ysbaddaden/minitest.cr).
+
+To run specs use `crystal run ./spec/*_test.cr` command.
 
 ## Contributing
 

@@ -20,8 +20,7 @@ class XfdfPdftkWrapperTest < PdftkWrapperTest
     assert field = @pdftk.get_fields("./output.pdf").find { |f| f.name == "nationality" }
     assert value = field.try(&.value) || ""
     refute value.nil?
-    assert_equal "????".size, HTML.escape(value).size
-    assert_equal "????", value
+    assert_equal japanese_string, HTML.unescape(value)
 
     assert field = @pdftk_utf8.get_fields("./output.pdf").find { |f| f.name == "nationality" }
     assert value = field.try(&.value)
