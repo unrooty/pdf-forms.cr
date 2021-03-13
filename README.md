@@ -1,3 +1,5 @@
+![Build Status](https://github.com/unrooty/pdf-forms.cr/actions/workflows/test.yml/badge.svg?branch=master)
+
 # pdf-forms.cr
 
 Fill out PDF forms with [pdftk](https://gitlab.com/pdftk-java/pdftk).
