@@ -8,9 +8,9 @@ This shard is a port of the [pdf-forms](https://github.com/jkraemer/pdf-forms) R
 
 ## Important Information
 
-This shard has been tested and works great with PDFtk 3.0, Ubuntu 18.04, Ubuntu 20.04 and Crystal 0.31.1 - 0.36.1.
+This shard has been tested and works great with PDFtk 3.0, Ubuntu 18.04, Ubuntu 20.04 and Crystal 0.36.1 - 1.0.0.
 
-Also it tested against MacOS latest and Crystal 0.36.1
+Also it tested against MacOS latest and Crystal 0.36.1 - 1.0.0.
 
 The installation of the PDFtk 3.0 is recommended for normal work.
 
@@ -43,7 +43,7 @@ Shard can work with PDFtk 2.0 if PDFtk has access to the **/tmp** diretcory.
    dependencies:
      pdf-forms.cr:
        github: unrooty/pdf-forms.cr
-       version: 0.2.0 # optional
+       version: 0.3.0 # optional
    ```
 
 -  Run 
