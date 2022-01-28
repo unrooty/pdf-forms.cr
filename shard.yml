@@ -1,10 +1,10 @@
 name: pdf-forms
-version: 0.2.0
+version: 0.4.0
 
 authors:
   - Vladislav Volkov <volcharneverfall1996@gmail.com>
  
-dependencies:
+development_dependencies:
   minitest:
     github: ysbaddaden/minitest.cr
     version: '>= 1.0.1'
