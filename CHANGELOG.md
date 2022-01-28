@@ -4,9 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.4.0] - 2022-01-28
+- Improve test matrix.
+- Allow to use Crystal version `>= 0.36.1`.
+- Add `.tools-versions` with the latest Crystal version.
+
 ## [0.3.0] - 2021-03-29
 - Bump Crystal version to 1.0.0.
-- Drup Crystal support under version 0.36.1.
+- Drop Crystal support under version 0.36.1.
 
 ## [0.2.0] - 2021-03-12
 - Add support of the Crystal version 36.1.
