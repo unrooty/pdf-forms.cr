@@ -15,11 +15,25 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - { os: ubuntu-20.04, crystal: 1.6.1 }
+          - { os: ubuntu-20.04, crystal: 1.5.1 }
+          - { os: ubuntu-20.04, crystal: 1.4.1 }
           - { os: ubuntu-20.04, crystal: 1.3.2 }
           - { os: ubuntu-20.04, crystal: 1.2.1 }
           - { os: ubuntu-20.04, crystal: 1.1.1 }
           - { os: ubuntu-20.04, crystal: 1.0.0 }
           - { os: ubuntu-20.04, crystal: 0.36.1 }
+          - { os: ubuntu-22.04, crystal: 1.6.1 }
+          - { os: ubuntu-22.04, crystal: 1.5.1 }
+          - { os: ubuntu-22.04, crystal: 1.4.1 }
+          - { os: ubuntu-22.04, crystal: 1.3.2 }
+          - { os: ubuntu-22.04, crystal: 1.2.1 }
+          - { os: ubuntu-22.04, crystal: 1.1.1 }
+          - { os: ubuntu-22.04, crystal: 1.0.0 }
+          - { os: ubuntu-22.04, crystal: 0.36.1 }
+          - { os: macOS-latest, crystal: 1.6.1 }
+          - { os: macOS-latest, crystal: 1.5.1 }
+          - { os: macOS-latest, crystal: 1.4.1 }
           - { os: macOS-latest, crystal: 1.3.2 }
           - { os: macOS-latest, crystal: 1.2.1 }
           - { os: macOS-latest, crystal: 1.1.1 }
@@ -27,6 +41,11 @@ jobs:
           - { os: macOS-latest, crystal: 0.36.1 }
     runs-on: ${{matrix.os}}
     steps:
+      - name: 'Prepare Ubuntu 22.04 ENV'
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          sudo apt install pdftk
+
       - name: 'Prepare Ubuntu 20.04 ENV'
         if: matrix.os == 'ubuntu-20.04'
         run: |
