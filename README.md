@@ -16,6 +16,12 @@ The installation of the PDFtk 3.0 is recommended for normal work.
 
 Shard can work with PDFtk 2.0 if PDFtk has access to the **/tmp** diretcory. 
 
+## Crystal and OS support
+
+You can see test matrix with OS and Crystal version support using the following link:
+
+https://github.com/unrooty/pdf-forms.cr/actions/workflows/test.yml
+
 ## Installation
 
 -  Install PDFtk (Ubuntu 18.04 only)
