@@ -8,9 +8,9 @@ This shard is a port of the [pdf-forms](https://github.com/jkraemer/pdf-forms) R
 
 ## Important Information
 
-This shard has been tested and works great with PDFtk 3.0, Ubuntu 18.04, Ubuntu 20.04 and Crystal 0.36.1 - 1.0.0.
+This shard has been tested and works great with PDFtk 3.0, Ubuntu 20.04 and Crystal 1.1.1 - 1.12.1.
 
-Also it tested against MacOS latest and Crystal 0.36.1 - 1.0.0.
+Also it tested against MacOS latest and Crystal 1.1.1 - 1.12.1.
 
 The installation of the PDFtk 3.0 is recommended for normal work.
 
@@ -18,30 +18,20 @@ Shard can work with PDFtk 2.0 if PDFtk has access to the **/tmp** diretcory.
 
 ## Crystal and OS support
 
-You can see test matrix with OS and Crystal version support using the following link:
+See [older releases](https://github.com/unrooty/pdf-forms.cr/releases) for the support of the older Crystal versions and OS.
 
-https://github.com/unrooty/pdf-forms.cr/actions/workflows/test.yml
+You can see [test matrix](https://github.com/unrooty/pdf-forms.cr/actions/workflows/test.yml) with OS and Crystal version supports.
 
 ## Installation
-
--  Install PDFtk (Ubuntu 18.04 only)
-
-```bash
-  wget http://launchpadlibrarian.net/475142792/pdftk-java_3.0.9-1_all.deb
-  sudo apt install default-jre-headless libcommons-lang3-java libbcprov-java
-  sudo dpkg -i pdftk-java_3.0.9-1_all.deb
-```
-
-- Install PDFtk (Ubuntu 20.04 only)
-
-```bash
-  sudo apt install pdftk
-```
-
-- Install PDFtk (MacOS latest only)
-```bash
-  brew install pdftk-java
-```
+- Install PDFtk
+  - Ubuntu 20.04 / Ununtu 22.04
+    ```bash
+      sudo apt install pdftk
+    ```
+  - MacOS latest
+    ```bash
+      brew install pdftk-java
+    ```
 
 - Add the dependency to your `shard.yml`:
 
@@ -49,7 +39,7 @@ https://github.com/unrooty/pdf-forms.cr/actions/workflows/test.yml
    dependencies:
      pdf-forms.cr:
        github: unrooty/pdf-forms.cr
-       version: 0.3.0 # optional
+       version: 1.1.0 # optional
    ```
 
 -  Run 
@@ -62,7 +52,7 @@ https://github.com/unrooty/pdf-forms.cr/actions/workflows/test.yml
 ### FDF/XFdf creation
 
 ```ruby
-require 'pdf_forms'
+require "pdf_forms"
 
 fdf = PdfForms::Fdf.new("key" => "value", "other_key" => "other value")
 
@@ -78,7 +68,7 @@ To generate XFDF instead of FDF instantiate `PdfForms::XFdf` instead of `PdfForm
 ### Query form fields and fill out PDF forms with pdftk
 
 ```ruby
-require 'pdf_forms'
+require "pdf_forms"
 
 # adjust the pdftk path to suit your pdftk installation
 # add "data_format" => "xfdf" option to generate XFDF instead of FDF when
@@ -118,7 +108,7 @@ If value has not been stored, most of the time there is a problem with filling o
 
 ## Testing
 
-Currencly shard uses [minitest.cr](https://github.com/ysbaddaden/minitest.cr).
+Currently shard uses [minitest.cr](https://github.com/ysbaddaden/minitest.cr).
 
 To run specs use `crystal run ./spec/*_test.cr` command.
 
