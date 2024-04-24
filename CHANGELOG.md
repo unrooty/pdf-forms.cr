@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.1.0] - 2024-04-24
+- Improve test matrix to test against Ubuntu 22.04 and Crystal version 1.7.x, 1.8.x, 1.9.x, 1.10.x, 1.11.x, 1.12.x.
+- Use Crystal `1.12.1` in `.tools-versions` as latest Crystal version.
+- Bump shard version to `v1.1.0` due to old Crystal versions drop.
+- Update `actions/checkhout` to `v4` to avoid unsupported packages versions usage.
+
 ## [1.0.0] - 2022-10-24
 - Improve test matrix to test against Ubuntu 22.04 and Crystal version 1.4.1, 1.5.1, 1.6.1.
 - Use Crystal `1.6.1` in `.tools-versions` as latest Crystal version.
